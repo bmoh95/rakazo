@@ -946,6 +946,8 @@ async function inviteMember(
   channel: { id: string; name: string | null },
   identity: IdentityRow,
 ): Promise<void> {
+  // A deactivated person is not invited anywhere.
+  if (await accountDeactivated(deps.prisma, identity.userId)) return;
   const name = channel.name ?? "a group chat";
   // A returning member restarts the approval cycle; clear the prior invite
   // row or skipDuplicates would leave them with no prompt to answer.
