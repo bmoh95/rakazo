@@ -25,6 +25,7 @@ import type {
   ThreadEvents,
 } from "@rakazo/db";
 import {
+  accountDeactivated,
   createThreadMessage,
   crossSpaceCommunicationAllowed,
   normalizeMessagingLinkCode,
@@ -139,6 +140,8 @@ async function handleDirectEvent(
   const existing = await deps.prisma.messagingIdentity.findUnique({ where });
   if (existing && event.installationSpaceId && existing.spaceId !== event.installationSpaceId)
     return;
+  // A deactivated person's chat apps act for nobody: no commands, messages or links.
+  if (existing && (await accountDeactivated(deps.prisma, existing.userId))) return;
   if (existing) {
     // Any reply — even a content-free reaction — ends the consecutive-
     // outbound streak, but only real text wakes the bot. The conversation
@@ -877,6 +880,7 @@ async function handleChannelEvent(
   const senderIdentity = senderMember.identityId
     ? await deps.prisma.messagingIdentity.findUnique({ where: { id: senderMember.identityId } })
     : null;
+  if (senderIdentity && (await accountDeactivated(deps.prisma, senderIdentity.userId))) return;
   const fromLabel = senderIdentity
     ? await ownerFirstName(deps.prisma, senderIdentity.userId, event.from)
     : event.from;
@@ -899,7 +903,7 @@ async function handleChannelEvent(
     const identity = await deps.prisma.messagingIdentity.findUnique({
       where: { id: member.identityId! },
     });
-    if (!identity) continue;
+    if (!identity || (await accountDeactivated(deps.prisma, identity.userId))) continue;
     const thread = await deps.prisma.thread.findFirst({ where: { botId: identity.botId } });
     if (!thread) continue;
     const target = {
