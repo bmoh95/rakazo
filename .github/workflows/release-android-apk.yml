@@ -21,9 +21,9 @@ concurrency:
 jobs:
   release:
     name: Build and publish the Android APK
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 70
     permissions:
       contents: write
     env:
@@ -61,6 +61,37 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x ./gradlew
+          # Expo writes MaxMetaspaceSize=512m. This app exhausts that during
+          # verifyReleaseResources, then the JVM leaks Metaspace OOMs until the
+          # job is cancelled. Raise the cap and keep the extra daemons in-process.
+          python3 - << 'PY'
+          from pathlib import Path
+          path = Path("gradle.properties")
+          text = path.read_text() if path.exists() else ""
+          lines = []
+          replaced = False
+          skip = ("org.gradle.workers.max=", "kotlin.compiler.execution.strategy=")
+          for line in text.splitlines():
+              if line.startswith("org.gradle.jvmargs="):
+                  lines.append(
+                      "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g "
+                      "-XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+                  )
+                  replaced = True
+              elif line.startswith(skip):
+                  continue
+              else:
+                  lines.append(line)
+          if not replaced:
+              lines.append(
+                  "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g "
+                  "-XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8"
+              )
+          lines.append("org.gradle.workers.max=2")
+          lines.append("kotlin.compiler.execution.strategy=in-process")
+          path.write_text("\n".join(lines) + "\n")
+          print(path.read_text())
+          PY
           ./gradlew assembleRelease --no-daemon --stacktrace
           apk="$(find app/build/outputs/apk/release -name '*.apk' -type f | head -n 1)"
           if [[ -z "${apk}" ]]; then
