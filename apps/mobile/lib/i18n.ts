@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 import { DE_MESSAGES, PEER_MESSAGE_FORMS as DE_PEER_FORMS } from "./locales/de";
 import { ES_MESSAGES, PEER_MESSAGE_FORMS as ES_PEER_FORMS } from "./locales/es";
 import { JA_MESSAGES, PEER_MESSAGE_FORMS as JA_PEER_FORMS } from "./locales/ja";
+import { KO_MESSAGES, PEER_MESSAGE_FORMS as KO_PEER_FORMS } from "./locales/ko";
 import { NL_MESSAGES, PEER_MESSAGE_FORMS as NL_PEER_FORMS } from "./locales/nl";
 import { PL_MESSAGES, PEER_MESSAGE_FORMS as PL_PEER_FORMS } from "./locales/pl";
 import { RU_MESSAGES, PEER_MESSAGE_FORMS as RU_PEER_FORMS } from "./locales/ru";
@@ -20,6 +21,7 @@ const catalogs: Partial<Record<UiLocale, Record<string, string>>> = {
   ja: JA_MESSAGES,
   es: ES_MESSAGES,
   pl: PL_MESSAGES,
+  ko: KO_MESSAGES,
 };
 
 let activeLocale: UiLocale = "en";
@@ -159,6 +161,7 @@ export function peerExchangeLabel(
     "zh-CN": ZH_PEER_FORMS,
     es: ES_PEER_FORMS,
     pl: PL_PEER_FORMS,
+    ko: KO_PEER_FORMS,
   };
   // Hermes ships without Intl.PluralRules, so pick the category by hand.
   const category = pluralCategory(activeLocale, count);

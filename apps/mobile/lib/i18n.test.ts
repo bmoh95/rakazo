@@ -178,6 +178,7 @@ describe("mobile i18n", () => {
     const { JA_MESSAGES } = await import("./locales/ja");
     const { ES_MESSAGES } = await import("./locales/es");
     const { PL_MESSAGES } = await import("./locales/pl");
+    const { KO_MESSAGES } = await import("./locales/ko");
     for (const messages of [
       ZH_MESSAGES,
       ZH_TW_MESSAGES,
@@ -187,6 +188,7 @@ describe("mobile i18n", () => {
       JA_MESSAGES,
       ES_MESSAGES,
       PL_MESSAGES,
+      KO_MESSAGES,
     ]) {
       const empty = Object.entries(messages).filter(([, value]) => !value.trim());
       const interpolationMismatches = Object.entries(messages).filter(([id, value]) => {
@@ -208,6 +210,7 @@ describe("mobile i18n", () => {
     const { JA_MESSAGES } = await import("./locales/ja");
     const { ES_MESSAGES } = await import("./locales/es");
     const { PL_MESSAGES } = await import("./locales/pl");
+    const { KO_MESSAGES } = await import("./locales/ko");
     const { EMPTY_PLUGIN_CATALOG_MESSAGE, SLASH_ACTIONS, RUN_ERROR_LIMIT_MESSAGES } = await import(
       "@rakazo/core"
     );
@@ -273,6 +276,7 @@ describe("mobile i18n", () => {
       JA_MESSAGES,
       ES_MESSAGES,
       PL_MESSAGES,
+      KO_MESSAGES,
     ]) {
       const missing = [...ids].filter((id) => !messages[id]?.trim()).sort();
       expect(missing).toEqual([]);
@@ -353,6 +357,17 @@ describe("mobile i18n", () => {
     expect(getActiveUiLocale()).toBe("de");
     expect(t("Language")).toBe("Sprache");
     expect(dateLocaleForUi()).toBe("de");
+  });
+
+  it("normalizes a regional Korean stored locale before activation", async () => {
+    const { getItemAsync } = await import("expo-secure-store");
+    vi.mocked(getItemAsync).mockResolvedValue("ko-KR");
+    const { bootstrapI18n, dateLocaleForUi, getActiveUiLocale, t } = await import("./i18n");
+
+    await expect(bootstrapI18n()).resolves.toBe("ko");
+    expect(getActiveUiLocale()).toBe("ko");
+    expect(t("Language")).toBe("언어");
+    expect(dateLocaleForUi()).toBe("ko");
   });
 
   it("keeps the last locale when rapid setUiLocale calls finish out of order", async () => {

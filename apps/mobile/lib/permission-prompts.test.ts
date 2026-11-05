@@ -10,7 +10,7 @@ const mobileRoot = resolve(import.meta.dirname, "..");
 const config = JSON.parse(readFileSync(resolve(mobileRoot, "app.json"), "utf8")) as AppConfig;
 
 describe("iOS permission prompts", () => {
-  it.each(["es", "pl"])("has a %s version of every prompt the app shows", (locale) => {
+  it.each(["es", "pl", "ko"])("has a %s version of every prompt the app shows", (locale) => {
     expect(config.expo.locales?.[locale]).toBe(`./locales/${locale}.json`);
     // Under `ios`: Expo writes top-level keys to Android resources too.
     const messages = (

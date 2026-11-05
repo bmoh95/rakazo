@@ -1,6 +1,6 @@
 import { matchUiLocale } from "@rakazo/core";
 
-export const UI_LOCALES = ["en", "zh-CN", "zh-TW", "ru", "de", "nl", "ja", "es", "pl"] as const;
+export const UI_LOCALES = ["en", "zh-CN", "zh-TW", "ru", "de", "nl", "ja", "es", "pl", "ko"] as const;
 
 export type UiLocale = (typeof UI_LOCALES)[number];
 
@@ -16,6 +16,7 @@ export const UI_LOCALE_LABELS: Record<UiLocale, string> = {
   ja: "日本語",
   es: "Español",
   pl: "Polski",
+  ko: "한국어",
 };
 
 export function htmlLangForLocale(locale: string): string {

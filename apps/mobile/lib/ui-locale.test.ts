@@ -27,6 +27,9 @@ describe("normalizeUiLocale", () => {
     expect(normalizeUiLocale("pl")).toBe("pl");
     expect(normalizeUiLocale("pl-PL")).toBe("pl");
     expect(normalizeUiLocale(" PL_pl ")).toBe("pl");
+    expect(normalizeUiLocale("ko")).toBe("ko");
+    expect(normalizeUiLocale("ko-KR")).toBe("ko");
+    expect(normalizeUiLocale("ko_KR")).toBe("ko");
   });
 
   it.each([
